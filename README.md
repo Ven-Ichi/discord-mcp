@@ -14,6 +14,7 @@ No dependencies. Node's built-in `fetch` does the Discord call.
 ## Tools
 
 `notify({ message })` → posts to one Discord channel, returns the message id.
+If `DISCORD_MENTION_USER_ID` is set, the message starts with `<@id>`, so it lands as a ping.
 Long text is split at 1900 characters (Discord's limit is 2000), with one retry on a 429.
 
 ## Environment
@@ -22,6 +23,7 @@ Long text is split at 1900 characters (Discord's limit is 2000), with one retry 
 |---|---|
 | `DISCORD_BOT_TOKEN` | Bot token from the Discord developer portal |
 | `DISCORD_CHANNEL_ID` | Target channel |
+| `DISCORD_MENTION_USER_ID` | Optional. When set, every message is prefixed with `<@id>` so it pings instead of just posting |
 | `MCP_TOKEN` | Shared secret; HTTP requests need `Authorization: Bearer <MCP_TOKEN>` |
 
 Locally, `mcp.js` loads these from `../blackboard-discord-bot/.env` if they are not already in the
