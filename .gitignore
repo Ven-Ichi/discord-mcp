@@ -1,4 +1,5 @@
 .token
+*.local.txt
 .env
 .env*
 !.env.example
