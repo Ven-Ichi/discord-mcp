@@ -13,9 +13,15 @@ No dependencies. Node's built-in `fetch` does the Discord call.
 
 ## Tools
 
-`notify({ message })` → posts to one Discord channel, returns the message id.
+`notify({ message, options? })` → posts to one Discord channel, returns the message id.
 If `DISCORD_MENTION_USER_ID` is set, the message starts with `<@id>`, so it lands as a ping.
+`options` (max 5) appends a numbered list and adds 1️⃣–5️⃣ reactions, so a tap is a valid answer.
 Long text is split at 1900 characters (Discord's limit is 2000), with one retry on a 429.
+
+`check_replies({ after_id? })` → reads the channel back. Returns Josh's messages (newest last), which of your
+messages each one replies to, and any reactions he tapped on your last three messages. Without `after_id` it
+returns everything newer than your own latest message, so the usual flow is: `notify` → wait → `check_replies`.
+The bot's own option reactions are filtered out of the report.
 
 ## Environment
 
