@@ -85,7 +85,7 @@ OpenCode (`~/.config/opencode/opencode.jsonc`):
 "mcp": {
   "discord": {
     "type": "remote",
-    "url": "https://<project>.vercel.app/api/mcp",
+    "url": "https://discord-mcp.venichi.workers.dev",
     "headers": { "Authorization": "Bearer <MCP_TOKEN>" }
   }
 }
@@ -97,7 +97,7 @@ Antigravity (`~/.gemini/config/mcp_config.json`):
 {
   "mcpServers": {
     "discord": {
-      "serverUrl": "https://<project>.vercel.app/api/mcp",
+      "serverUrl": "https://discord-mcp.venichi.workers.dev",
       "headers": { "Authorization": "Bearer <MCP_TOKEN>" }
     }
   }

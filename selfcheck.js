@@ -2,7 +2,7 @@
 
 // Offline self-check, no network or token: node selfcheck.js
 const assert = require('assert');
-const { respond, chunk, buildBody, optionLabel } = require('./lib/core');
+const { respond, chunk, buildBody, optionLabel, checkReplies } = require('./lib/core');
 
 assert.strictEqual(chunk('a'.repeat(4500)).length, 3);
 assert.strictEqual(chunk('short').length, 1);
@@ -27,5 +27,32 @@ assert.strictEqual(optionLabel('nope', 2), 'option 3');
   });
   assert.strictEqual(tooMany.error.code, -32602);
   assert.strictEqual(await respond({}, { method: 'notifications/initialized' }), null);
+  const originalFetch = global.fetch;
+  let reactionReads = 0;
+  let botReacted = false;
+  global.fetch = async (url) => {
+    let data;
+    if (url.endsWith('/users/@me')) data = { id: '1' };
+    else if (url.includes('/reactions/')) {
+      reactionReads++;
+      data = [{ id: '2', username: 'Josh', bot: false }];
+    } else data = [{ id: '10', author: { id: '1' }, content: 'pick',
+      reactions: [{ emoji: { name: '👍' }, count: 1, me: botReacted }] }];
+    return { ok: true, status: 200, json: async () => data };
+  };
+  try {
+    const env = { DISCORD_BOT_TOKEN: 'test', DISCORD_CHANNEL_ID: 'test' };
+    assert.strictEqual((await checkReplies(env)).hasReplies, true);
+    assert.strictEqual(reactionReads, 1);
+    const answer = await respond(env, { id: 6, method: 'tools/call',
+      params: { name: 'wait_for_reply', arguments: { seconds: 1 } } });
+    assert.match(answer.result.content[0].text, /Answered by Josh/);
+    assert.strictEqual(reactionReads, 2);
+    botReacted = true;
+    assert.strictEqual((await checkReplies(env)).hasReplies, false);
+    assert.strictEqual(reactionReads, 2);
+  } finally {
+    global.fetch = originalFetch;
+  }
   console.log('self-check OK');
-})();
+})().catch((error) => { console.error(error); process.exitCode = 1; });
