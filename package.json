@@ -4,7 +4,8 @@
   "private": true,
   "description": "MCP server that lets AI agents ping Josh on Discord",
   "scripts": {
-    "selfcheck": "node lib/core.js",
-    "stdio": "node mcp.js"
+    "selfcheck": "node selfcheck.js",
+    "stdio": "node mcp.js",
+    "deploy": "wrangler deploy"
   }
 }

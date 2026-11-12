@@ -1,12 +1,13 @@
 # discord-mcp
 
-A single-tool MCP server that lets an AI agent ping me on Discord: `notify(message)`.
+A small MCP server that lets an AI agent talk to me on Discord: `notify`, and then wait for my answer.
 
-Works two ways from the same code:
+Works three ways from the same code:
 
 | Transport | Entry point | Used by |
 |---|---|---|
-| Streamable HTTP (stateless) | `api/mcp.js` on Vercel | ChatGPT, remote clients |
+| Streamable HTTP (stateless) | `worker.js` on Cloudflare Workers | ChatGPT, remote clients (primary) |
+| Streamable HTTP (stateless) | `api/mcp.js` on Vercel | backup endpoint |
 | stdio | `mcp.js` | OpenCode, Antigravity, anything local |
 
 No dependencies. Node's built-in `fetch` does the Discord call.
@@ -37,6 +38,28 @@ environment (override the path with `DISCORD_ENV_PATH`). Nothing is hardcoded in
 
 ## Deploy
 
+### Cloudflare Workers (primary)
+
+Free plan, no card, no cold starts, and an HTTP request may run for as long as the client stays
+connected — which is what `wait_for_reply` needs.
+
+```bash
+wrangler login
+wrangler deploy
+wrangler secret put DISCORD_BOT_TOKEN
+wrangler secret put DISCORD_CHANNEL_ID
+wrangler secret put DISCORD_MENTION_USER_ID
+wrangler secret put MCP_TOKEN
+```
+
+The endpoint is the worker root: `https://discord-mcp.<subdomain>.workers.dev`.
+
+Free-plan headroom that matters here: 100k requests/day, 10 ms CPU per request (sleeping costs
+none), and 50 subrequests per request. `wait_for_reply(25s)` spends 13 polls × 2 calls, so the bot
+identity is cached per isolate and reaction lookups are skipped while `count` is 1.
+
+### Vercel (backup)
+
 ```bash
 vercel link --yes --project discord-mcp
 vercel env add DISCORD_BOT_TOKEN production   # paste, or pipe from your own .env
@@ -51,6 +74,8 @@ Turn off Vercel Authentication for the project, otherwise every call gets
 ```bash
 vercel project protection disable --sso
 ```
+
+Vercel caps a function at 60s, which is why `wait_for_reply` tops out at 25s.
 
 ## Client config
 
@@ -98,7 +123,7 @@ Full MCP write actions need a Business/Enterprise plan; a personal plan may refu
 ## Test
 
 ```bash
-node lib/core.js                     # offline self-check, no network
+node selfcheck.js                    # offline self-check, no network
 printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' | node mcp.js
 ```
 
