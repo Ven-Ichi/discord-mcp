@@ -51,6 +51,9 @@ assert.strictEqual(optionLabel('nope', 2), 'option 3');
     botReacted = true;
     assert.strictEqual((await checkReplies(env)).hasReplies, false);
     assert.strictEqual(reactionReads, 2);
+    const clamped = await respond({ ...env, WAIT_MAX_SECONDS: '1' }, { id: 7, method: 'tools/call',
+      params: { name: 'wait_for_reply', arguments: { seconds: 999 } } });
+    assert.strictEqual(clamped.result.content[0].text, 'No answer within 1s. Call wait_for_reply again to keep waiting.');
   } finally {
     global.fetch = originalFetch;
   }
