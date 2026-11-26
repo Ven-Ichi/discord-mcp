@@ -1,0 +1,9 @@
+.token
+*.local.txt
+.env
+.env*
+!.env.example
+.vercel
+.wrangler
+.dev.vars
+node_modules

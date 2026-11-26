@@ -1,0 +1,20 @@
+{
+  "name": "discord-mcp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Zero-dependency MCP server for two-way Discord notifications and reply polling (Cloudflare Workers, Vercel, stdio)",
+  "license": "GPL-3.0-only",
+  "homepage": "https://github.com/Ven-Ichi/discord-mcp#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ven-Ichi/discord-mcp.git"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "selfcheck": "node selfcheck.js",
+    "stdio": "node mcp.js",
+    "deploy": "wrangler deploy"
+  }
+}
